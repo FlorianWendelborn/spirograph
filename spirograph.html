@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title>Spirograph</title>
+		<meta charset="utf-8" />
+		<style>
+			body{
+				background-color: #000;
+				padding: 5px;
+				margin: 0px;
+				text-align: center;
+			}
+			#frame2graphOuter{			
+				border-radius: 10px;
+				width: 100%;
+				height: 10px;
+				background: -moz-linear-gradient(#444,#ddd);
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#444), color-stop(100%,#ddd));
+				-moz-box-shadow: 0px 0px 5px #ccc;
+			}
+			#frame2graph{
+				background: -moz-linear-gradient(#4f4,#4c4);
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#4f4), color-stop(100%,#4c4));
+				border-radius: 10px;
+				height: 10px;
+				width: 0px;
+			}
+			#fpsCounter{
+				color: #000;
+			}
+			input[type="button"]{
+				border: 1px solid rgba(100,100,100,0.8);
+				padding: 2px;
+				font-family: "Verdana";
+				font-size: 9.5pt;
+				border-radius: 3px;
+				background:-moz-linear-gradient(#fff,#ddd,#ddd,#ddd,#ccc);
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#fff), color-stop(20%,#ddd),color-stop(80%,#ddd), color-stop(100%,#ccc));
+			}
+			input[type="button"]:hover{
+				border: 1px solid rgba(100,100,100,1);
+				background:-moz-linear-gradient(#999,#fff);
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,#999), color-stop(100%,#fff));
+			}
+			#buttons{
+				text-align: left;
+			}
+			.group{
+				-moz-box-shadow: 0px 0px 10px #666;
+				border-radius: 10px;
+				padding: 7px;
+				margin: 10px;
+				background:-moz-linear-gradient(white,silver);
+				background:-webkit-gradient(linear, left top, left bottom, color-stop(0%,white), color-stop(100%,silver));
+			}
+			canvas{
+				margin: 0px;
+				margin-bottom: 4px;
+			}
+		</style>
+		<script type="application/x-javascript">
+			function ajaxLoad(file){
+				var scriptTag = document.getElementById('scriptLader');
+				var head = document.getElementsByTagName('head').item(0);
+				if(scriptTag) {
+					try {
+						head.removeChild(scriptTag);      	
+					}
+					catch (e) {
+						scriptTag.parentNode.removeChild(scriptTag);
+					} 			
+				}
+				script = document.createElement('script');
+				script.src = file;
+				script.type = 'text/javascript';
+				script.id = 'scriptLader';
+				head.appendChild(script)
+			}
+		</script>
+		<script type="application/x-javascript">
+			function init(){
+				c = document.getElementById("spiro");
+				c.width = 1024;
+				c.height = 512;
+				g = c.getContext("2d");
+				g.translate(c.width/2,c.height/2);
+				frame = 0;
+				maxFrame = 350;
+				fps = 0;
+				oldFrm = 0;
+				newRand();
+				render();
+				setInterval("getFps();",1000);
+			}
+			function newRand(){
+				rand = Math.random()*20-10;
+				rand2 = Math.random()*100;
+				rand3 = Math.random()*100;
+				rand4 = Math.random();
+				x1 = Math.random()*100;
+				x2 = Math.random()*100;
+				x3 = Math.random()*100;
+				x4 = Math.random()*100;
+				newColor();
+			}
+			function newColor(){
+				c1 = Math.random()*255/maxFrame;
+				c2 = Math.random()*255/maxFrame;
+				c3 = Math.random()*255/maxFrame;
+			}
+			function render(){
+				if(frame >= maxFrame){
+					clearIt();
+					newRand();
+				}
+				prc = frame/maxFrame*100;
+				document.getElementById("frame2graph").style.width = prc + "%";
+				g.fillStyle = "rgba("+Math.round(frame*c1)+","+Math.round(frame*c2)+","+Math.round(frame*c3)+","+rand4+")";
+				g.rotate(Math.PI/4*8*rand2);
+				g.fillRect(frame,0,20,5);
+				g.rotate(Math.PI/4*7-rand2);
+				g.fillRect(frame,0,20,5);
+				g.rotate(Math.PI/4*6*rand3);
+				g.fillRect(frame,0,20,5);
+				g.rotate(Math.PI/4*5-rand3);
+				g.fillRect(frame,0,20,5);
+				g.rotate(Math.PI/4*4*rand2);
+				g.fillRect(-100+frame,0,20,x1);
+				g.rotate(Math.PI/4*3-rand2);
+				g.fillRect(-100+frame,0,20,x2);
+				g.rotate(Math.PI/4*2*rand3);
+				g.fillRect(-100+frame,0,20,x3);
+				g.rotate(Math.PI/4*1-rand3);
+				g.fillRect(-100+frame,0,20,x4);
+				g.rotate(Math.PI*rand);
+				writeFps();
+				frame++;
+				setTimeout("render()",1);
+			}
+			function clearIt(){
+				frameIsNull();
+				g.clearRect(-10000,-10000,20000,20000);
+			}
+			function getFps(){
+				fps = frame-oldFrm;
+				oldFrm = frame;
+			}
+			function writeFps(){
+				document.getElementById("fpsCounter").innerHTML = "Frame " + frame + " @ " + fps + "FPS";
+			}
+			function frameIsNull(){
+				oldFrm = 0-frame+oldFrm;
+				frame = 0;
+			}
+		</script>
+	</head>
+	<body onload="init();">
+		<canvas id="spiro"></canvas>
+		<div id="buttons">
+			<span class="group">
+				<input type="button" onmousedown="frameIsNull();g.clearRect(-10000,-10000,20000,20000);" value="Again" />
+				<input type="button" onmousedown="newColor();" value="Fun" />
+				<input type="button" onmousedown="frameIsNull();clearIt();newRand();" value="Next" />
+				<input type="button" onmousedown="frameIsNull();g.clearRect(-10000,-10000,20000,20000);newColor();" value="New Color" />
+				<input type="button" onmousedown="frameIsNull();g.clearRect(-10000,-10000,20000,20000);rand4 = Math.random();" value="New Opacity" />
+			</span>
+			<span class="group">
+				<input type="button" onmousedown="maxFrame = maxFrame-10;document.getElementById('maxFrameDisplay').value=maxFrame;" value="-"/>
+				<input type="text" value="350" autocomplete="off" style="width: 25px;text-align: center;" id="maxFrameDisplay" />
+				<input type="button" onmousedown="maxFrame = maxFrame+10;document.getElementById('maxFrameDisplay').value=maxFrame;" value="+"/>
+			</span>
+			<span class="group" id="fpsCounter">
+				Frame 0 @ ?FPS
+			</span>
+			<br />
+			<div class="group">
+				<div id="frame2graphOuter" style="">
+					<div id="frame2graph" style=""></div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
